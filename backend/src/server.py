@@ -78,3 +78,28 @@ async def create_item(list_id: str, new_item: NewItem) -> ToDoList:
 async def delete_item(list_id: str, item_id: str) -> ToDoList:
     return await app.todo_dal.delete_item(list_id, item_id)
 
+class ToDoItemUpdate(BaseModel):
+    item_id: str
+    checked_state: bool 
+
+@app.patch("/api/lists/{list_id}/checked_state")
+async def set_checked_state(list_id: str, update: ToDoItemUpdate) -> ToDoList:
+    return await app.todo_dal.set_checked_state(list_id, update.item_id, update.checked_state)
+
+class DummyResponse(BaseModel):
+    id: str
+    when: datetime
+
+@app.get("/api/dummy")
+async def get_dummy() -> DummyResponse:
+    return DummyResponse(id=str(ObjectId()), when=datetime.now())
+
+def main(argv=sys.argv[1:]):
+    try:
+        uvicorn.run("server:app", host="0.0.0.0", port=3001, reload=DEBUG)
+    except KeyboardInterrupt:
+        pass
+
+
+if __name__ == "__main__":
+    main()
